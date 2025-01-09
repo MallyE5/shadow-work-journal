@@ -69,6 +69,12 @@
             }
         }
 
+        .timer {
+            text-align: center;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
         button {
             display: block;
             margin: 20px auto 0;
@@ -84,14 +90,29 @@
         button:hover {
             background-color: #4cae4c;
         }
+
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+
+        .word-count {
+            text-align: right;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
     </style>
+    
 </head>
 <body>
     <div class="container">
         <h1>Shadow Work Journaling</h1>
         <div class="prompt" id="prompt">What emotions do you avoid feeling, and why?</div>
         <textarea id="writing-area" class="writing-area" placeholder="Start writing..."></textarea>
+        <div class="word-count" id="word-count">Word count: 0</div>
         <div id="flashing-light"></div>
+        <div class="timer" id="timer">5:00</div>
         <button onclick="getNewPrompt()">New Prompt</button>
     </div>
 
@@ -106,23 +127,81 @@
 
         const writingArea = document.getElementById('writing-area');
         const flashingLight = document.getElementById('flashing-light');
+        const wordCountDisplay = document.getElementById('word-count');
+        const timerDisplay = document.getElementById('timer');
+
         let typingTimer;
         const typingDelay = 5000; // 5 seconds of inactivity
+        let timerInterval;
+        let timerSeconds = 300; // 5 minutes in seconds
 
         writingArea.addEventListener('input', () => {
             clearTimeout(typingTimer);
             flashingLight.style.display = 'none'; // Hide the flashing light
-            typingTimer = setTimeout(showFlashingLight, typingDelay);
+            updateWordCount();
+            typingTimer = setTimeout(() => {
+                writingArea.style.animation = 'flash 1s infinite';
+            }, typingDelay);
         });
+
+        function updateWordCount() {
+            const wordCount = writingArea.value.trim().split(/\s+/).filter(word => word).length;
+            wordCountDisplay.textContent = `Word count: ${wordCount}`;
+        }
 
         function showFlashingLight() {
             flashingLight.style.display = 'block'; // Show the flashing light
         }
 
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerSeconds = 300;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                if (timerSeconds > 0) {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    timerDisplay.classList.add('warning');
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            timerDisplay.classList.remove('warning');
+        }
+
         function getNewPrompt() {
+            if (writingArea.value.trim() !== '') {
+                const confirmNewPrompt = confirm('Are you sure you want to select a new prompt? This will clear your current response.');
+                if (!confirmNewPrompt) return;
+            }
             const randomIndex = Math.floor(Math.random() * prompts.length);
             document.getElementById('prompt').innerText = prompts[randomIndex];
+            writingArea.value = '';
+            updateWordCount();
+            startTimer();
         }
+
+        function saveResponseLocally() {
+            const response = writingArea.value.trim();
+            if (response) {
+                const savedResponses = JSON.parse(localStorage.getItem('responses') || '[]');
+                savedResponses.push({
+                    prompt: document.getElementById('prompt').innerText,
+                    response,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem('responses', JSON.stringify(savedResponses));
+                alert('Your response has been saved locally.');
+            }
+        }
+
+        window.addEventListener('beforeunload', saveResponseLocally);
     </script>
 </body>
 </html>
