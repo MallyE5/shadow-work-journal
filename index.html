@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Work Journaling</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+
+        .prompt {
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .writing-area {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 16px;
+            background: #f9f9f9;
+            resize: none;
+        }
+
+        #flashing-light {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
+            margin: 10px auto;
+            display: none;
+            animation: flash 1s infinite;
+        }
+
+        @keyframes flash {
+            0%, 100% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Shadow Work Journaling</h1>
+        <div class="prompt" id="prompt">What emotions do you avoid feeling, and why?</div>
+        <textarea id="writing-area" class="writing-area" placeholder="Start writing..."></textarea>
+        <div id="flashing-light"></div>
+        <button onclick="getNewPrompt()">New Prompt</button>
+    </div>
+
+    <script>
+        const prompts = [
+            "What emotions do you avoid feeling, and why?",
+            "Describe a time when you felt unworthy. What caused that feeling?",
+            "What are your biggest fears, and how do they hold you back?",
+            "What part of yourself do you hide from others, and why?",
+            "Who has hurt you the most, and what would you say to them?"
+        ];
+
+        const writingArea = document.getElementById('writing-area');
+        const flashingLight = document.getElementById('flashing-light');
+        let typingTimer;
+        const typingDelay = 5000; // 5 seconds of inactivity
+
+        writingArea.addEventListener('input', () => {
+            clearTimeout(typingTimer);
+            flashingLight.style.display = 'none'; // Hide the flashing light
+            typingTimer = setTimeout(showFlashingLight, typingDelay);
+        });
+
+        function showFlashingLight() {
+            flashingLight.style.display = 'block'; // Show the flashing light
+        }
+
+        function getNewPrompt() {
+            const randomIndex = Math.floor(Math.random() * prompts.length);
+            document.getElementById('prompt').innerText = prompts[randomIndex];
+        }
+    </script>
+</body>
+</html>
